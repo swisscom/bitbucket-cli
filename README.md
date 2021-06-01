@@ -55,3 +55,81 @@ drwxr-xr-x  3 dvitali dvitali  120 Jul 21 18:09 project-1
 drwxr-xr-x  4 dvitali dvitali  140 Jul 21 18:09 project-2
 drwxr-xr-x  3 dvitali dvitali  100 Jul 21 18:09 project-3
 ```
+
+
+## Repo
+
+This main subcommand requires two arguments:
+
+- `-k KEY`
+- `-n NAME`
+
+These are basically the identifiers for your repository, not including one of the twos in all of the
+subcommands will result in an error.
+
+### PR
+
+This subcommand deals with PRs, please check its subcommands.
+
+#### Create
+
+This command, subcommand of (`repo pr`) allows you to create a Pull Request.
+
+Use it as follows:
+
+```
+bitbucket-cli repo -k "KEY" \
+  -n "bitbucket-playground" \
+  pr create \
+  -t "Some Title" \
+  -d "Some Description :thumbsup:" \
+  -F "refs/heads/feature/2" -T "refs/heads/master"
+```
+
+
+##### Usage 
+
+```
+Usage: bitbucket-cli repo pr create --title TITLE [--description DESCRIPTION] --from-ref FROM-REF --to-ref TO-REF [--from-key FROM-KEY] [--from-slug FROM-SLUG]
+
+Options:
+  --title TITLE, -t TITLE
+                         Title of this PR
+  --description DESCRIPTION, -d DESCRIPTION
+                         Description of the PR
+  --from-ref FROM-REF, -F FROM-REF
+                         Reference of the incoming PR, e.g: refs/heads/feature-ABC-123
+  --to-ref TO-REF, -T TO-REF
+                         Target reference, e.g: refs/heads/master
+  --from-key FROM-KEY, -K FROM-KEY
+                         Project Key of the "from" repository
+  --from-slug FROM-SLUG, -S FROM-SLUG
+                         Repository slug of the "from" repository
+  --help, -h             display this help and exit
+```
+
+#### List
+
+Lists all the PRs for the chosen repository
+
+```
+$ bitbucket-cli repo -k KEY -n bitbucket-playground pr list
+Some Title (ID: 2)
+feature 1 (ID: 1)
+```
+
+```
+$ bitbucket-cli repo -k KEY -n bitbucket-playground pr list -s DECLINED
+feature 1 (ID: 1)
+```
+
+##### Usage
+
+```plain
+Usage: bitbucket-cli repo pr list [--state STATE]
+
+Options:
+  --state STATE, -s STATE
+                         PR State, any of: ALL, OPEN, DECLINED, MERGED
+  --help, -h             display this help and exit
+```

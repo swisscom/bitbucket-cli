@@ -6,15 +6,15 @@ import (
 )
 
 type RepoPrCreateCmd struct {
-	Title       string `arg:"-t,--title,required"`
-	Description string `arg:"-d,--description"`
+	Title       string `arg:"-t,--title,required" help:"Title of this PR"`
+	Description string `arg:"-d,--description" help:"Description of the PR"`
 
-	FromRef string `arg:"-F,--from-ref,required"` // e.g: refs/heads/feature-ABC-123
-	ToRef   string `arg:"-T,--to-ref,required"`
+	FromRef string `arg:"-F,--from-ref,required" help:"Reference of the incoming PR, e.g: refs/heads/feature-ABC-123"` // e.g: refs/heads/feature-ABC-123
+	ToRef   string `arg:"-T,--to-ref,required" help:"Target reference, e.g: refs/heads/master"`
 
 	// From which repo? Defaults to self
-	FromRepoKey  string `arg:"-K,--from-key"`
-	FromRepoSlug string `arg:"-S,--from-slug"`
+	FromRepoKey  string `arg:"-K,--from-key" help:"Project Key of the \"from\" repository"`
+	FromRepoSlug string `arg:"-S,--from-slug" help:"Repository slug of the \"from\" repository"`
 }
 
 func (b *BitbucketCLI) repoPrCreate(cmd *RepoCmd) {

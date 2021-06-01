@@ -7,7 +7,7 @@ import (
 )
 
 type RepoPrListCmd struct {
-	State string `arg:"-s,--state"`
+	State string `arg:"-s,--state" help:"PR State, any of: ALL, OPEN, DECLINED, MERGED"`
 }
 
 func (b *BitbucketCLI) repoPrList(cmd *RepoCmd) {
@@ -49,8 +49,11 @@ func (b *BitbucketCLI) repoPrList(cmd *RepoCmd) {
 		b.logger.Fatalf("unable to parse PRs response: %v", err)
 	}
 
+	var lines []string
+
 	for _, pr := range prsResponse {
-		fmt.Printf("%s (ID: %d)", pr.Title, pr.ID)
+		lines = append(lines, fmt.Sprintf("%s (ID: %d)", pr.Title, pr.ID))
 	}
 
+	fmt.Print(strings.Join(lines,"\n"))
 }
