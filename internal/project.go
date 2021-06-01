@@ -22,7 +22,11 @@ func (b *BitbucketCLI) RunProjectCmd(cmd *ProjectCmd){
 
 	if cmd.List != nil {
 		b.projectList(cmd)
+		return
 	} else if cmd.Clone != nil {
 		b.projectClone(cmd)
+		return
 	}
+
+	b.logger.Fatal(errSpecifySubcommand)
 }

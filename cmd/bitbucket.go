@@ -11,6 +11,7 @@ type Args struct {
 	Password string          `arg:"-p,--password,env:BITBUCKET_PASSWORD"`
 	Url      string          `arg:"-u,--url,required,env:BITBUCKET_URL"`
 	Project  *cli.ProjectCmd `arg:"subcommand:project"`
+	Repo     *cli.RepoCmd    `arg:"subcommand:repo"`
 }
 
 var args Args
@@ -24,5 +25,9 @@ func main() {
 
 	if args.Project != nil {
 		c.RunProjectCmd(args.Project)
+	}
+
+	if args.Repo != nil {
+		c.RunRepoCmd(args.Repo)
 	}
 }
