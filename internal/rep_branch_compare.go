@@ -62,10 +62,10 @@ func (b *BitbucketCLI) branchCmdCompare(cmd *RepoCmd) {
 	}
 
 	if compare.Count {
-		//commitResponse.
+		fmt.Printf("%d", len(commits))
 	} else {
 		for _, c := range commits {
-			fmt.Printf("%s %s \n",  c.DisplayID, strings.Split(c.Message, "\n")[0])
+			fmt.Printf("%s %s \n", c.DisplayID, strings.Split(c.Message, "\n")[0])
 		}
 	}
 
