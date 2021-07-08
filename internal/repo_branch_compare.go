@@ -63,12 +63,11 @@ func (b *BitbucketCLI) branchCmdCompare(cmd *RepoCmd) {
 
 	if compare.Count {
 		fmt.Printf("%d", len(commits))
-	} else {
-		for _, c := range commits {
-			fmt.Printf("%s %s \n", c.DisplayID, strings.Split(c.Message, "\n")[0])
-		}
+		return
 	}
-
+	for _, c := range commits {
+		fmt.Printf("%s %s \n", c.DisplayID, strings.Split(c.Message, "\n")[0])
+	}
 }
 
 func findBranch(branches []bitbucketv1.Branch, branchName string) *bitbucketv1.Branch {
