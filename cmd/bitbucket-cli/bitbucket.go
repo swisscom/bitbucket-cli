@@ -17,7 +17,7 @@ type Args struct {
 var args Args
 
 func main() {
-	arg.MustParse(&args)
+	p := arg.MustParse(&args)
 	logger := logrus.New()
 
 	c := cli.NewCLI(args.Username, args.Password, args.Url)
@@ -25,9 +25,14 @@ func main() {
 
 	if args.Project != nil {
 		c.RunProjectCmd(args.Project)
+		return
 	}
 
 	if args.Repo != nil {
 		c.RunRepoCmd(args.Repo)
+		return
 	}
+
+	p.Fail("Command must be specified")
+
 }
