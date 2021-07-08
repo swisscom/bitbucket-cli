@@ -27,6 +27,7 @@ func (b BitbucketCLI) SetLogger(logger *logrus.Logger) {
 func NewCLI(username string, password string, repoUrl string) BitbucketCLI {
 	basicAuth := bitbucket.BasicAuth{UserName: username, Password: password}
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+
 	ctx = context.WithValue(ctx, bitbucket.ContextBasicAuth, basicAuth)
 	c := bitbucket.NewAPIClient(ctx, bitbucket.NewConfiguration(repoUrl))
 	logger := logrus.New()
