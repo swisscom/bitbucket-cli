@@ -30,12 +30,15 @@ func (b *BitbucketCLI) securityCmd(cmd *RepoCmd) {
 	if cmd.SecurityCmd.Result != nil {
 		scanResult := b.getScanResult(cmd.ProjectKey, cmd.Slug)
 		if scanResult.Total == 0 {
-			printGreenBackground("No issues found")
+			printGreenBackground(fmt.Sprintf(
+				"No issues found in %s/%s", cmd.ProjectKey, cmd.Slug),
+			)
 		} else {
 			printRedBackground(
 				fmt.Sprintf("%d issues found in %s/%s", scanResult.Total, cmd.ProjectKey, cmd.Slug),
 			)
 		}
+		fmt.Printf("\n")
 		return
 	}
 
