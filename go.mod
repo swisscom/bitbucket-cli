@@ -9,7 +9,7 @@ require (
 	github.com/gfleury/go-bitbucket-v1 v0.0.0-20200327185123-b3c7f99f7f5c
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/sirupsen/logrus v1.6.0
-	gopkg.in/yaml.v2 v2.2.4
+	gopkg.in/yaml.v2 v2.2.8
 )
 
 require (
