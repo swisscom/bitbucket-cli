@@ -12,6 +12,7 @@ type Args struct {
 	Url      string          `arg:"-u,--url,required,env:BITBUCKET_URL"`
 	Project  *cli.ProjectCmd `arg:"subcommand:project"`
 	Repo     *cli.RepoCmd    `arg:"subcommand:repo"`
+	Pr       *cli.PrCmd      `arg:"subcommand:pr"`
 }
 
 var args Args
@@ -30,6 +31,11 @@ func main() {
 
 	if args.Repo != nil {
 		c.RunRepoCmd(args.Repo)
+		return
+	}
+
+	if args.Pr != nil {
+		c.RunPRCmd(args.Pr)
 		return
 	}
 
