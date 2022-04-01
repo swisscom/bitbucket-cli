@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func MustGetCLI() cli.BitbucketCLI {
+func MustGetCLI() *cli.BitbucketCLI {
 	c, err := cli.NewCLI(
 		&cli.BasicAuth{
 			Username: os.Getenv("BITBUCKET_USERNAME"),
