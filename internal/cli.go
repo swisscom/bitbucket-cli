@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -36,7 +37,9 @@ func NewCLI(auth Authenticator, restUrl string) (*BitbucketCLI, error) {
 
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	ctx = auth.GetContext(ctx)
-	c := bitbucket.NewAPIClient(ctx, bitbucket.NewConfiguration(restUrl))
+	c := bitbucket.NewAPIClient(ctx, bitbucket.NewConfiguration(
+		strings.TrimRight(mUrl.String(), "/"), // https://git.example.com/rest/ -> https://git.example.com/rest
+	))
 	logger := logrus.New()
 
 	return &BitbucketCLI{
