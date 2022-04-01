@@ -133,3 +133,22 @@ Options:
                          PR State, any of: ALL, OPEN, DECLINED, MERGED
   --help, -h             display this help and exit
 ```
+
+### Security
+
+#### Scan
+
+##### Usage
+
+```plain
+Usage: bitbucket-cli repo security scan
+
+Options:
+  --help, -h             display this help and exit
+```
+
+##### Example
+
+```plain
+bitbucket-cli repo -k ABC -n some-repo security scan
+```

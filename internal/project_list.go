@@ -8,21 +8,39 @@ import (
 )
 
 type ProjectListCmd struct {
-
 }
 
-func (b *BitbucketCLI) projectList(cmd *ProjectCmd){
+func (b *BitbucketCLI) projectList(cmd *ProjectCmd) {
 	if cmd == nil {
 		return
 	}
 
-	// List project repositories
-	res, err := b.client.DefaultApi.GetRepositories(cmd.Key)
-	if err != nil {
-		logrus.Fatal(err)
+	var repositories []bitbucket.Repository
+	start := 0
+
+	// Fetch all repos
+	for {
+		// List project repositories
+		res, err := b.client.DefaultApi.GetRepositoriesWithOptions(cmd.Key,
+			map[string]interface{}{
+				"start": start,
+			},
+		)
+		if err != nil {
+			logrus.Fatal(err)
+		}
+		pageRepos, err := bitbucket.GetRepositoriesResponse(res)
+		if err != nil {
+			logrus.Fatalf("unable to parse repositories response: %v", err)
+		}
+		repositories = append(repositories, pageRepos...)
+		hasNextPage, nextPageStart := bitbucket.HasNextPage(res)
+		if !hasNextPage {
+			break
+		}
+		start = nextPageStart
 	}
 
-	repositories, err := bitbucket.GetRepositoriesResponse(res)
 	for _, v := range repositories {
 		// Get HTTP Clone URL
 		var cloneUrl = ""

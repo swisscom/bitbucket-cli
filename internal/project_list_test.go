@@ -7,7 +7,7 @@ import (
 )
 
 func TestProjectList(t *testing.T) {
-	c := test.GetCLI()
+	c := test.MustGetCLI()
 	c.RunProjectCmd(&cli.ProjectCmd{
 		Key:   "TOOL",
 		List:  &cli.ProjectListCmd{},

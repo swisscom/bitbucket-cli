@@ -13,7 +13,7 @@ type RepoPrCreateCmd struct {
 	ToRef   string `arg:"-T,--to-ref,required" help:"Target reference, e.g: refs/heads/master"`
 
 	// From which repo? Defaults to self
-	FromRepoKey  string `arg:"-K,--from-key" help:"Project Key of the \"from\" repository"`
+	FromRepoKey  string `arg:"-K,--from-key" help:"Project AccessToken of the \"from\" repository"`
 	FromRepoSlug string `arg:"-S,--from-slug" help:"Repository slug of the \"from\" repository"`
 }
 
