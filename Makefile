@@ -1,3 +1,3 @@
 build:
-	mkdir -p bin/
-	go build -o ./bin/bitbucket-cli ./cmd/bitbucket-cli
+	mkdir -p build/
+	go build -o ./build/bitbucket-cli ./cmd/bitbucket-cli
