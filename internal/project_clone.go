@@ -5,7 +5,6 @@ import (
 	bitbucket "github.com/gfleury/go-bitbucket-v1"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
-	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/sirupsen/logrus"
 	"net/url"
 	"path/filepath"
@@ -16,8 +15,8 @@ type ProjectCloneCmd struct {
 	Branch string `arg:"-b,--branch" default:"master"`
 }
 
-func (b *BitbucketCLI) projectClone(cmd *ProjectCmd){
-	// Clones all of the projects
+func (b *BitbucketCLI) projectClone(cmd *ProjectCmd) {
+	// Clones all the projects
 	res, err := b.client.DefaultApi.GetRepositories(cmd.Key)
 	if err != nil {
 		logrus.Fatal(err)
@@ -50,7 +49,7 @@ func (b *BitbucketCLI) projectClone(cmd *ProjectCmd){
 			SingleBranch:  true,
 			ReferenceName: plumbing.NewBranchReferenceName(cmd.Clone.Branch),
 			URL:           cloneUrl,
-			Auth:          &http.BasicAuth{Username: b.username, Password: b.password},
+			Auth:          &b.cloneCredentials,
 		})
 
 		if err != nil {

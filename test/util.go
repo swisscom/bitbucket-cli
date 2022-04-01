@@ -5,10 +5,16 @@ import (
 	"os"
 )
 
-func GetCLI() cli.BitbucketCLI {
-	return cli.NewCLI(
-		os.Getenv("BITBUCKET_USERNAME"),
-		os.Getenv("BITBUCKET_PASSWORD"),
+func MustGetCLI() cli.BitbucketCLI {
+	c, err := cli.NewCLI(
+		&cli.BasicAuth{
+			Username: os.Getenv("BITBUCKET_USERNAME"),
+			Password: os.Getenv("BITBUCKET_PASSWORD"),
+		},
 		os.Getenv("BITBUCKET_URL"),
 	)
+	if err != nil {
+		panic(err)
+	}
+	return c
 }
