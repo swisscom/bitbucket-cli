@@ -6,9 +6,9 @@ on:
       - 'master'
     tags:
       - 'v*'
-  pull_request:
-    branches:
-      - 'master'
+#  pull_request: # only for demonstration in the pr
+#    branches:
+#      - 'master'
 
 env:
   REGISTRY: ghcr.io
