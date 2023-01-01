@@ -15,6 +15,10 @@ Commands:
   project
 ```
 
+# Docker container
+
+A docker container for this project can be obtained [here](https://github.com/swisscom/bitbucket-cli/pkgs/container/bitbucket-cli).
+
 ## Project
 
 ### List
@@ -152,3 +156,4 @@ Options:
 ```plain
 bitbucket-cli repo -k ABC -n some-repo security scan
 ```
+
