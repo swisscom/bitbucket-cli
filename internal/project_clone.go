@@ -17,12 +17,33 @@ type ProjectCloneCmd struct {
 
 func (b *BitbucketCLI) projectClone(cmd *ProjectCmd) {
 	// Clones all the projects
-	res, err := b.client.DefaultApi.GetRepositories(cmd.Key)
-	if err != nil {
-		logrus.Fatal(err)
+
+	var repositories []bitbucket.Repository
+	var err error
+	start := 0
+
+	for {
+		// List project repositories
+		res, err := b.client.DefaultApi.GetRepositoriesWithOptions(cmd.Key,
+			map[string]interface{}{
+				"start": start,
+			},
+		)
+		if err != nil {
+			logrus.Fatal(err)
+		}
+		pageRepos, err := bitbucket.GetRepositoriesResponse(res)
+		if err != nil {
+			logrus.Fatalf("unable to parse repositories response: %v", err)
+		}
+		repositories = append(repositories, pageRepos...)
+		hasNextPage, nextPageStart := bitbucket.HasNextPage(res)
+		if !hasNextPage {
+			break
+		}
+		start = nextPageStart
 	}
 
-	repositories, err := bitbucket.GetRepositoriesResponse(res)
 	for _, v := range repositories {
 		// Get HTTP Clone URL
 		var cloneUrl = ""
