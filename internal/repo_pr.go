@@ -4,6 +4,7 @@ type RepoPrCmd struct {
 	Approve *RepoPrApproveCmd `arg:"subcommand:approve"`
 	Create  *RepoPrCreateCmd  `arg:"subcommand:create"`
 	List    *RepoPrListCmd    `arg:"subcommand:list"`
+	Merge   *RepoPrMergeCmd   `arg:"subcommand:merge"`
 }
 
 func (b *BitbucketCLI) repoPrCmd(cmd *RepoCmd) {
@@ -21,6 +22,9 @@ func (b *BitbucketCLI) repoPrCmd(cmd *RepoCmd) {
 		return
 	} else if prCmd.List != nil {
 		b.repoPrList(cmd)
+		return
+	} else if prCmd.Merge != nil {
+		b.repoPrMerge(cmd)
 		return
 	}
 
