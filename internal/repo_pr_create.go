@@ -17,7 +17,7 @@ type RepoPrCreateCmd struct {
 	FromRepoKey  string `arg:"-K,--from-key" help:"Project AccessToken of the \"from\" repository"`
 	FromRepoSlug string `arg:"-S,--from-slug" help:"Repository slug of the \"from\" repository"`
 
-	Reviewers string `arg:"-r,--reviewers" help:"Comma separated list of reviewers"`
+	Reviewers string `arg:"-r,--reviewers,env:BITBUCKET_REVIEWERS" help:"Comma separated list of reviewers"`
 }
 
 func (b BitbucketCLI) GetReviewers(revList string) []bitbucketv1.UserWithMetadata {
