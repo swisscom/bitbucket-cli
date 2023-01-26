@@ -1,8 +1,8 @@
 package cli
 
 type RepoCmd struct {
-	ProjectKey string `arg:"-k,--key,required" help:"Project AccessToken (e.g: TOOL)"`
-	Slug       string `arg:"-n,--name,required" help:"Slug of the repository"`
+	ProjectKey string `arg:"-k,--key,required,env:BITBUCKET_PROJECT" help:"Project AccessToken (e.g: TOOL)"`
+	Slug       string `arg:"-n,--name,required,env:BITBUCKET_REPO" help:"Slug of the repository"`
 
 	PrCmd       *RepoPrCmd   `arg:"subcommand:pr"`
 	BranchCmd   *BranchCmd   `arg:"subcommand:branch"`

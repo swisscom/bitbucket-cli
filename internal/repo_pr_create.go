@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	bitbucketv1 "github.com/gfleury/go-bitbucket-v1"
+	"strings"
 )
 
 type RepoPrCreateCmd struct {
@@ -15,6 +16,40 @@ type RepoPrCreateCmd struct {
 	// From which repo? Defaults to self
 	FromRepoKey  string `arg:"-K,--from-key" help:"Project AccessToken of the \"from\" repository"`
 	FromRepoSlug string `arg:"-S,--from-slug" help:"Repository slug of the \"from\" repository"`
+
+	Reviewers string `arg:"-r,--reviewers,env:BITBUCKET_REVIEWERS" help:"Comma separated list of reviewers"`
+}
+
+func (b BitbucketCLI) GetReviewers(revList string) []bitbucketv1.UserWithMetadata {
+	if revList == "" {
+		return nil
+	}
+	var reviewers []bitbucketv1.UserWithMetadata
+	for _, user := range strings.Split(revList, ",") {
+		if usersResponse, err := b.client.DefaultApi.GetUsers(map[string]interface{}{"filter": user}); err != nil {
+			b.logger.Fatalf("Error while retrieving user %s: %e", user, err)
+		} else if users, err := bitbucketv1.GetUsersResponse(usersResponse); err != nil {
+			b.logger.Fatalf("Error while parsing list of users for user %s: %e", user, err)
+		} else if len(users) == 0 {
+			b.logger.Fatalf("user %s does not exist", user)
+		} else if len(users) > 1 {
+			var found []string
+			for _, bbUser := range users {
+				found = append(found, fmt.Sprintf("%s: %s (%s)", bbUser.Slug, bbUser.Name, bbUser.EmailAddress))
+			}
+			b.logger.Fatalf("multiple users found for user %s: %s", user, strings.Join(found, ", "))
+		} else {
+			bbUser := users[0]
+			reviewers = append(reviewers, bitbucketv1.UserWithMetadata{
+				User: bitbucketv1.UserWithLinks{
+					Name:         bbUser.Name,
+					EmailAddress: bbUser.EmailAddress,
+					Slug:         bbUser.Slug,
+				},
+			})
+		}
+	}
+	return reviewers
 }
 
 func (b *BitbucketCLI) repoPrCreate(cmd *RepoCmd) {
@@ -46,6 +81,7 @@ func (b *BitbucketCLI) repoPrCreate(cmd *RepoCmd) {
 				Project: &bitbucketv1.Project{Key: cmd.ProjectKey},
 			},
 		},
+		Reviewers: b.GetReviewers(create.Reviewers),
 	}
 
 	resp, err := b.client.DefaultApi.CreatePullRequest(

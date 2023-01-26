@@ -1,24 +1,30 @@
 package cli
 
 type RepoPrCmd struct {
-	List   *RepoPrListCmd `arg:"subcommand:list"`
-	Create *RepoPrCreateCmd `arg:"subcommand:create"`
+	Approve *RepoPrApproveCmd `arg:"subcommand:approve"`
+	Create  *RepoPrCreateCmd  `arg:"subcommand:create"`
+	List    *RepoPrListCmd    `arg:"subcommand:list"`
+	Merge   *RepoPrMergeCmd   `arg:"subcommand:merge"`
 }
 
-func (b *BitbucketCLI) repoPrCmd(cmd *RepoCmd){
+func (b *BitbucketCLI) repoPrCmd(cmd *RepoCmd) {
 	if cmd == nil || cmd.PrCmd == nil {
 		return
 	}
 
 	prCmd := cmd.PrCmd
 
-	if prCmd.List != nil {
+	if prCmd.Approve != nil {
+		b.repoPrApprove(cmd)
+		return
+	} else if prCmd.Create != nil {
+		b.repoPrCreate(cmd)
+		return
+	} else if prCmd.List != nil {
 		b.repoPrList(cmd)
 		return
-	}
-
-	if prCmd.Create != nil {
-		b.repoPrCreate(cmd)
+	} else if prCmd.Merge != nil {
+		b.repoPrMerge(cmd)
 		return
 	}
 

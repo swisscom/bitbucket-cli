@@ -7,7 +7,7 @@ import (
 )
 
 type RepoPrListCmd struct {
-	State string `arg:"-s,--state" help:"PR State, any of: ALL, OPEN, DECLINED, MERGED"`
+	State string `arg:"-s,--state,env:BITBUCKET_LIST" help:"PR State, any of: ALL, OPEN, DECLINED, MERGED"`
 }
 
 func (b *BitbucketCLI) repoPrList(cmd *RepoCmd) {
@@ -55,5 +55,5 @@ func (b *BitbucketCLI) repoPrList(cmd *RepoCmd) {
 		lines = append(lines, fmt.Sprintf("%s (ID: %d)", pr.Title, pr.ID))
 	}
 
-	fmt.Print(strings.Join(lines,"\n"))
+	fmt.Print(strings.Join(lines, "\n"))
 }
