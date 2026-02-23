@@ -168,3 +168,72 @@ Options:
 bitbucket-cli repo -k ABC -n some-repo security scan
 ```
 
+
+## PR
+
+Dashboard-level operations on Pull Requests. Unlike `repo pr`, these commands operate across all repositories visible to the authenticated user.
+
+### List
+
+Lists all Pull Requests visible on your dashboard.
+
+```
+$ bitbucket-cli pr list
+Some Title - Jane Doe - https://your-bitbucket-hostname/projects/KEY/repos/some-repo/pull-requests/2
+feature 1 - John Doe - https://your-bitbucket-hostname/projects/KEY/repos/some-repo/pull-requests/1
+```
+
+```
+$ bitbucket-cli pr list -s OPEN
+```
+
+##### Usage
+
+```plain
+Usage: bitbucket-cli pr list [--state STATE] [--output OUTPUT] [--filter-title FILTER-TITLE] [--filter-desc FILTER-DESC]
+
+Options:
+  --state STATE, -s STATE
+  --output OUTPUT, -o OUTPUT
+  --filter-title FILTER-TITLE, -t FILTER-TITLE
+  --filter-desc FILTER-DESC, -d FILTER-DESC
+  --help, -h             display this help and exit
+```
+
+### Create
+
+Creates a Pull Request in the specified repository.
+
+```
+$ bitbucket-cli pr create \
+  -k "KEY" \
+  -n "bitbucket-playground" \
+  -t "Some Title" \
+  -d "Some Description :thumbsup:" \
+  -F "refs/heads/feature/2" -T "refs/heads/master"
+```
+
+##### Usage
+
+```plain
+Usage: bitbucket-cli pr create --key KEY --name NAME --title TITLE [--description DESCRIPTION] --from-ref FROM-REF --to-ref TO-REF [--from-key FROM-KEY] [--from-slug FROM-SLUG] [--reviewers REVIEWERS]
+
+Options:
+  --key KEY, -k KEY      Project key
+  --name NAME, -n NAME   Repository slug
+  --title TITLE, -t TITLE
+                         Title of this PR
+  --description DESCRIPTION, -d DESCRIPTION
+                         Description of the PR
+  --from-ref FROM-REF, -F FROM-REF
+                         Reference of the incoming PR, e.g: refs/heads/feature-ABC-123
+  --to-ref TO-REF, -T TO-REF
+                         Target reference, e.g: refs/heads/master
+  --from-key FROM-KEY, -K FROM-KEY
+                         Project Key of the "from" repository
+  --from-slug FROM-SLUG, -S FROM-SLUG
+                         Repository slug of the "from" repository
+  --reviewers REVIEWERS, -r REVIEWERS
+                         Comma separated list of reviewers
+  --help, -h             display this help and exit
+```
