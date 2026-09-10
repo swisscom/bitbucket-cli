@@ -63,13 +63,13 @@ drwxr-xr-x  3 dvitali dvitali  100 Jul 21 18:09 project-3
 
 ## Repo
 
-This main subcommand requires two arguments:
+Most subcommands need to know which repository to operate on. You can supply this explicitly:
 
-- `-k KEY`
-- `-n NAME`
+- `-k KEY` — project key (e.g. `TOOL`)
+- `-n NAME` — repository slug (e.g. `my-repo`)
 
-These are basically the identifiers for your repository, not including one of the twos in all of the
-subcommands will result in an error.
+Or, if you run the command from inside a cloned Bitbucket repository, both are detected automatically
+from the `origin` remote URL and can be omitted.
 
 ### PR
 
@@ -77,38 +77,49 @@ This subcommand deals with PRs, please check its subcommands.
 
 #### Create
 
-This command, subcommand of (`repo pr`) allows you to create a Pull Request.
+Creates a Pull Request.  When run from inside a cloned Bitbucket repository, the project key, slug,
+and source branch are all detected automatically.  If the source branch has exactly one commit ahead
+of the target, the PR title and description are pre-populated from that commit's subject and body.
 
-Use it as follows:
-
-```
-bitbucket-cli repo -k "KEY" \
-  -n "bitbucket-playground" \
-  pr create \
-  -t "Some Title" \
-  -d "Some Description :thumbsup:" \
-  -F "refs/heads/feature/2" -T "refs/heads/master"
-```
-
-
-##### Usage 
+Minimal invocation (from inside the repo, on a single-commit feature branch):
 
 ```
-Usage: bitbucket-cli repo pr create --title TITLE [--description DESCRIPTION] --from-ref FROM-REF --to-ref TO-REF [--from-key FROM-KEY] [--from-slug FROM-SLUG]
+$ bitbucket-cli repo pr create -T "refs/heads/master"
+```
+
+Explicit invocation:
+
+```
+$ bitbucket-cli repo -k "KEY" \
+    -n "bitbucket-playground" \
+    pr create \
+    -t "Some Title" \
+    -d "Some Description :thumbsup:" \
+    -F "refs/heads/feature/2" -T "refs/heads/master"
+```
+
+##### Usage
+
+```
+Usage: bitbucket-cli repo [-k KEY] [-n NAME] pr create [-t TITLE] [-d DESCRIPTION] [-F FROM-REF] --to-ref TO-REF [--from-key FROM-KEY] [--from-slug FROM-SLUG] [--reviewers REVIEWERS]
 
 Options:
   --title TITLE, -t TITLE
-                         Title of this PR
+                         Title of this PR; defaults to the commit subject when the branch has
+                         exactly one commit ahead of the target
   --description DESCRIPTION, -d DESCRIPTION
-                         Description of the PR
+                         Description of the PR; defaults to the commit body when the branch has
+                         exactly one commit ahead of the target
   --from-ref FROM-REF, -F FROM-REF
-                         Reference of the incoming PR, e.g: refs/heads/feature-ABC-123
+                         Source branch, e.g: refs/heads/feature-ABC-123; defaults to the current branch
   --to-ref TO-REF, -T TO-REF
-                         Target reference, e.g: refs/heads/master
+                         Target branch, e.g: refs/heads/master
   --from-key FROM-KEY, -K FROM-KEY
-                         Project Key of the "from" repository
+                         Project key of the source repository (if different from target)
   --from-slug FROM-SLUG, -S FROM-SLUG
-                         Repository slug of the "from" repository
+                         Repository slug of the source repository (if different from target)
+  --reviewers REVIEWERS, -r REVIEWERS
+                         Comma-separated list of reviewers
   --help, -h             display this help and exit
 ```
 

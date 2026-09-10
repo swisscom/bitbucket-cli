@@ -7,10 +7,10 @@ import (
 )
 
 type RepoPrCreateCmd struct {
-	Title       string `arg:"-t,--title,required" help:"Title of this PR"`
-	Description string `arg:"-d,--description" help:"Description of the PR"`
+	Title       string `arg:"-t,--title" help:"Title of this PR; defaults to the commit subject when the branch has exactly one commit"`
+	Description string `arg:"-d,--description" help:"Description of the PR; defaults to the commit body when the branch has exactly one commit"`
 
-	FromRef string `arg:"-F,--from-ref,required" help:"Reference of the incoming PR, e.g: refs/heads/feature-ABC-123"` // e.g: refs/heads/feature-ABC-123
+	FromRef string `arg:"-F,--from-ref" help:"Reference of the incoming PR, e.g: refs/heads/feature-ABC-123; defaults to the current branch"` // e.g: refs/heads/feature-ABC-123
 	ToRef   string `arg:"-T,--to-ref,required" help:"Target reference, e.g: refs/heads/master"`
 
 	// From which repo? Defaults to self
@@ -57,6 +57,31 @@ func (b *BitbucketCLI) repoPrCreate(cmd *RepoCmd) {
 		return
 	}
 	create := cmd.PrCmd.Create
+
+	if create.FromRef == "" {
+		ctx, err := GetRepoContext(".")
+		if err != nil {
+			b.logger.Fatalf("--from-ref not specified and could not detect current branch: %v", err)
+		}
+		if ctx.Branch == "" {
+			b.logger.Fatal("--from-ref not specified and HEAD is not on a branch (detached HEAD).")
+		}
+		create.FromRef = "refs/heads/" + ctx.Branch
+	}
+
+	if create.Title == "" {
+		subject, body, found, err := GetSingleCommitMessage(".", create.FromRef, create.ToRef)
+		if err != nil {
+			b.logger.Fatalf("--title not specified and could not read commit history: %v", err)
+		}
+		if !found {
+			b.logger.Fatal("--title not specified and branch does not have exactly one commit ahead of the target.")
+		}
+		create.Title = subject
+		if create.Description == "" {
+			create.Description = body
+		}
+	}
 
 	if create.FromRepoKey == "" && create.FromRepoSlug == "" {
 		// From = To

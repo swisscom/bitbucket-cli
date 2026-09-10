@@ -7,6 +7,7 @@ import (
 )
 
 func TestProjectList(t *testing.T) {
+	test.SkipIfNoServer(t)
 	c := test.MustGetCLI()
 	c.RunProjectCmd(&cli.ProjectCmd{
 		Key:   "TOOL",
