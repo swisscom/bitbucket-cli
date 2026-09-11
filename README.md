@@ -3,16 +3,22 @@
 A [Bitbucket Enterprise](https://bitbucket.org/product/enterprise) CLI.
 
 ```
-Usage: bitbucket-cli [--username USERNAME] [--password PASSWORD] --url URL <command> [<args>]
+Usage: bitbucket-cli [--debug] [--username USERNAME] [--password PASSWORD] [--access-token ACCESS-TOKEN] [--url URL] [--config CONFIG] <command> [<args>]
 
 Options:
+  --debug, -D
   --username USERNAME, -u USERNAME
   --password PASSWORD, -p PASSWORD
-  --url URL, -u URL
+  --access-token ACCESS-TOKEN, -t ACCESS-TOKEN
+                         A Personal Access Token
+  --url URL, -u URL      URL to the REST API of Bitbucket, e.g: https://git.example.com/rest
+  --config CONFIG, -c CONFIG
   --help, -h             display this help and exit
 
 Commands:
   project
+  repo
+  pr
 ```
 
 # Docker container
@@ -63,13 +69,178 @@ drwxr-xr-x  3 dvitali dvitali  100 Jul 21 18:09 project-3
 
 ## Repo
 
-Most subcommands need to know which repository to operate on. You can supply this explicitly:
+Most subcommands need to know which repository to operate on.  You can supply
+this explicitly:
 
-- `-k KEY` — project key (e.g. `TOOL`)
-- `-n NAME` — repository slug (e.g. `my-repo`)
+- `-k KEY` / `--key KEY`: the project key (e.g. `TOOL`).  Can also be set
+  through `BITBUCKET_PROJECT`.
+- `-n NAME` / `--name NAME`: the slug of an existing repository (e.g.
+  `my-repo`).  Can also be set through `BITBUCKET_REPO`.
 
-Or, if you run the command from inside a cloned Bitbucket repository, both are detected automatically
-from the `origin` remote URL and can be omitted.
+Or, if you run the command from inside a cloned Bitbucket repository, both are
+detected automatically from the `origin` remote URL and can be omitted.
+
+The project key is always needed.  The slug is needed by every subcommand
+except `create`, which names the new repository with its own `--display-name`
+option instead and ignores `--name`.  Both flags belong to `repo` itself and
+are accepted before or after the subcommand name, but a subcommand's own
+`--help` does not list them.  A subcommand that needs the slug and cannot get
+one stops with an error before doing anything.
+
+### Get
+
+Shows a single repository.  Requires `REPO_READ` permission.
+
+```
+$ bitbucket-cli repo --key KEY --name bitbucket-playground get
+Name:          bitbucket-playground
+Slug:          bitbucket-playground
+ID:            42
+Project:       KEY
+State:         AVAILABLE
+Public:        false
+Forkable:      true
+Description:   A playground repository
+Clone (https): https://your-bitbucket-hostname/scm/key/bitbucket-playground.git
+Clone (ssh):   ssh://git@your-bitbucket-hostname:7999/key/bitbucket-playground.git
+Web:           https://your-bitbucket-hostname/projects/KEY/repos/bitbucket-playground/browse
+```
+
+`--output json` prints the repository exactly as the server returned it, which
+is handy together with `jq`:
+
+```
+$ bitbucket-cli repo --key KEY --name bitbucket-playground get --output json \
+    | jq --raw-output '.links.clone[] | select(.name == "http") | .href'
+https://your-bitbucket-hostname/scm/key/bitbucket-playground.git
+```
+
+##### Usage
+
+```plain
+Usage: bitbucket-cli repo get [--output OUTPUT]
+
+Options:
+  --output OUTPUT, -o OUTPUT
+                         Output format: text (default) or json
+  --help, -h             display this help and exit
+```
+
+### Create
+
+Creates a repository in the project.  Requires `PROJECT_ADMIN` permission.
+
+The new repository is named with `--display-name`; Bitbucket derives the
+slug from it (`"My Repo"` becomes `my-repo`).  Neither the parent's `--name`
+nor a slug detected from the git remote is used by this command; only the
+project key is.
+
+```
+$ bitbucket-cli repo --key KEY create --display-name "My Repo" --description "Something new" --forkable=false
+Name:          My Repo
+Slug:          my-repo
+ID:            43
+Project:       KEY
+State:         AVAILABLE
+Public:        false
+Forkable:      false
+Description:   Something new
+Clone (https): https://your-bitbucket-hostname/scm/key/my-repo.git
+Clone (ssh):   ssh://git@your-bitbucket-hostname:7999/key/my-repo.git
+Web:           https://your-bitbucket-hostname/projects/KEY/repos/my-repo/browse
+```
+
+Only the options you pass are sent to the server, so its defaults apply to
+everything else.  Boolean options take their value with an equals sign:
+`--forkable=false` works, `--forkable false` does not.  Older Bitbucket versions
+only honour the name and silently ignore the other options.  `--output json` is
+available as for `get`.
+
+##### Usage
+
+```plain
+Usage: bitbucket-cli repo create --display-name DISPLAY-NAME [--description DESCRIPTION] [--forkable] [--public] [--default-branch DEFAULT-BRANCH] [--output OUTPUT]
+
+Options:
+  --display-name DISPLAY-NAME
+                         Display name of the new repository; Bitbucket derives the slug from it
+  --description DESCRIPTION, -d DESCRIPTION
+                         Description of the repository
+  --forkable             Whether the repository can be forked (use --forkable=false to disable)
+  --public               Whether the repository is publicly accessible (use --public=false to disable)
+  --default-branch DEFAULT-BRANCH
+                         Default branch of the new repository, e.g: main
+  --output OUTPUT, -o OUTPUT
+                         Output format: text (default) or json
+  --help, -h             display this help and exit
+```
+
+### Update
+
+Changes one or more settings of a repository.  Requires `REPO_ADMIN` permission.
+At least one option must be given, and only the given ones are changed.
+
+```
+$ bitbucket-cli repo --key KEY --name my-repo update --new-name "Renamed Repo" --description ""
+Name:          Renamed Repo
+Slug:          renamed-repo
+...
+```
+
+Renaming a repository may change its slug; the updated repository, including the
+new slug, is printed afterwards.  Passing `--description ""` clears the
+description.  `--to-project OTHERKEY` moves the repository to another project,
+which needs admin rights on both projects.  As with `create`, booleans take
+their value with an equals sign (`--public=false`).
+
+##### Usage
+
+```plain
+Usage: bitbucket-cli repo update [--new-name NEW-NAME] [--description DESCRIPTION] [--forkable] [--public] [--default-branch DEFAULT-BRANCH] [--to-project TO-PROJECT] [--output OUTPUT]
+
+Options:
+  --new-name NEW-NAME    New name of the repository (renaming may change the slug)
+  --description DESCRIPTION, -d DESCRIPTION
+                         New description of the repository (pass "" to clear it)
+  --forkable             Whether the repository can be forked (use --forkable=false to disable)
+  --public               Whether the repository is publicly accessible (use --public=false to disable)
+  --default-branch DEFAULT-BRANCH
+                         New default branch, e.g: main
+  --to-project TO-PROJECT
+                         Key of the project to move the repository to
+  --output OUTPUT, -o OUTPUT
+                         Output format: text (default) or json
+  --help, -h             display this help and exit
+```
+
+### Delete
+
+Schedules a repository for deletion.  Requires `REPO_ADMIN` permission.
+
+Without `--yes` the command looks the repository up and asks you to type its
+slug on standard input; any other answer aborts.  Scripts must pass `--yes`,
+since there is nobody to answer the prompt.
+
+```
+$ bitbucket-cli repo --key KEY --name my-repo delete
+Delete repository KEY/my-repo ("My Repo")? Type the slug to confirm: my-repo
+repository KEY/my-repo scheduled for deletion
+```
+
+```
+$ bitbucket-cli repo --key KEY --name my-repo delete --yes
+repository KEY/my-repo scheduled for deletion
+```
+
+##### Usage
+
+```plain
+Usage: bitbucket-cli repo delete [--yes]
+
+Options:
+  --yes, -y              Skip the confirmation prompt
+  --help, -h             display this help and exit
+```
 
 ### PR
 

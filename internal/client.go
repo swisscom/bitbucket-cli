@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 // Custom Client to perform custom REST requests
@@ -18,6 +19,12 @@ func (b *BitbucketCLI) doReq(req *http.Request) (*http.Response, error) {
 
 func (b *BitbucketCLI) getUrl() *url.URL {
 	return b.restUrl
+}
+
+// apiBaseUrl returns the REST base URL without a trailing slash, e.g.
+// https://git.example.com/rest, ready to have an API path appended to it.
+func (b *BitbucketCLI) apiBaseUrl() string {
+	return strings.TrimRight(b.restUrl.String(), "/")
 }
 
 func (b *BitbucketCLI) prepareRequest(req *http.Request) error {
