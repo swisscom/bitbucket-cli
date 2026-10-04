@@ -12,6 +12,9 @@ import (
 	"time"
 )
 
+// requestTimeout bounds every single HTTP request made to Bitbucket.
+const requestTimeout = 10 * time.Second
+
 type BitbucketCLI struct {
 	cloneCredentials gitHttp.BasicAuth
 	restUrl          *url.URL
@@ -35,10 +38,16 @@ func NewCLI(auth Authenticator, restUrl string) (*BitbucketCLI, error) {
 		return nil, fmt.Errorf("unable to parse URL: %v", err)
 	}
 
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	ctx = auth.GetContext(ctx)
+	// The timeout lives on the HTTP client so that it applies per request.
+	// A deadline on the context would start counting at construction time
+	// and expire for every request made after it.
+	httpClient := &http.Client{Timeout: requestTimeout}
+	ctx := auth.GetContext(context.Background())
 	c := bitbucket.NewAPIClient(ctx, bitbucket.NewConfiguration(
 		strings.TrimRight(mUrl.String(), "/"), // https://git.example.com/rest/ -> https://git.example.com/rest
+		func(cfg *bitbucket.Configuration) {
+			cfg.HTTPClient = httpClient
+		},
 	))
 	logger := logrus.New()
 
@@ -48,6 +57,6 @@ func NewCLI(auth Authenticator, restUrl string) (*BitbucketCLI, error) {
 		auth:             auth,
 		client:           c,
 		logger:           logger,
-		httpClient:       http.DefaultClient,
+		httpClient:       httpClient,
 	}, nil
 }
